@@ -1,0 +1,22 @@
+<!-- display_images.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Images</title>
+</head>
+<body>
+    <h1>Zapisane obrazy:</h1>
+    {% for image in images %}
+        <div>
+            <h2>Obraz {{ image.id }}</h2>
+            <p>Data utworzenia: {{ image.created_at }}</p>
+            <img src="data:image/png;base64,{{ image.image_data }}" alt="Obraz">
+
+
+        </div>
+    {% endfor %}
+</body>
+</html>

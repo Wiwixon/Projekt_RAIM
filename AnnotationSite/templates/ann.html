@@ -5,16 +5,58 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Multiple Selections with Undo</title>
 <style>
+    body {
+        background-color: #222;
+        color: #fff;
+        font-family: Arial, sans-serif;
+    }
+    
+    #canvasContainer {
+        margin: 20px;
+    }
+    
     #canvas {
-        border: 1px solid black;
+        border: 1px solid #fff;
+        margin-bottom: 10px;
+    }
+
+    #menuBar {
+        background-color: #333;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+
+    #menuBar button {
+        background-color: #555;
+        color: #fff;
+        border: none;
+        padding: 5px 10px;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+
+    #menuBar button:hover {
+        background-color: #777;
     }
 </style>
 </head>
 <body>
-<input type="file" id="fileInput" accept="image/*"><br>
-<canvas id="canvas"></canvas>
-<button id="saveButton">Save Selections</button>
-<button id="undoButton">Undo</button>
+<div id="menuBar">
+    <button id="saveButton">Save Selections</button>
+    <button id="undoButton">Undo</button>
+</div>
+<div id="canvasContainer">
+    <input type="file" id="fileInput" accept="image/*"><br>
+    <canvas id="canvas"></canvas>
+    <form id="selectionForm" action="{% url 'save_selection' %}" method="post">
+	{% csrf_token %}
+        <input type="hidden" id="imageData" name="imageData">
+        <input type="hidden" id="x" name="x">
+        <input type="hidden" id="y" name="y">
+        <input type="hidden" id="width" name="width">
+        <input type="hidden" id="height" name="height">
+    </form>
+</div>
 
 <script>
     window.onload = function() {
@@ -106,10 +148,18 @@
                     tempCtx.fillRect(selection.x, selection.y, selection.width, selection.height);
                 });
 
-                var downloadLink = document.createElement('a');
-                downloadLink.href = tempCanvas.toDataURL();
-                downloadLink.download = 'image_with_selections.png';
-                downloadLink.click();
+                var imageData = tempCanvas.toDataURL();
+                document.getElementById('imageData').value = imageData;
+
+                // Pobierz współrzędne i wymiary ostatniego zaznaczenia
+                var lastSelection = selections[selections.length - 1];
+                document.getElementById('x').value = lastSelection.x;
+                document.getElementById('y').value = lastSelection.y;
+                document.getElementById('width').value = lastSelection.width;
+                document.getElementById('height').value = lastSelection.height;
+
+                // Wyślij formularz z danymi do serwera
+                document.getElementById('selectionForm').submit();
             } else {
                 alert('No selections to save.');
             }

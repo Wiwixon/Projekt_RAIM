@@ -17,8 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from . import views
+from .views import save_selection, display_images
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('annotate/', views.index)
+    path('annotate/', views.index),
+    path('save_selection/', save_selection, name='save_selection'),
+    path('display_images/', display_images, name='display_images'),
 ]
