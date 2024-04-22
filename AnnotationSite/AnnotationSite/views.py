@@ -22,5 +22,5 @@ def save_selection(request):
         return HttpResponse("Invalid request method")
 
 def display_images(request):
-    images = Selection.objects.all()
-    return render(request, 'display_images.html', {'images': images})
+    selections = Selection.objects.all()
+    return render(request, 'display_images.html', {'selections': selections})

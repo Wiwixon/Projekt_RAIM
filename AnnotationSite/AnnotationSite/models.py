@@ -3,7 +3,7 @@
 from django.db import models
 
 class Selection(models.Model):
-    image_data = models.TextField()  # Dane obrazu w formacie Base64
+    image = models.ImageField(upload_to='selections/')  # Pole obrazu
     x = models.IntegerField()        # Współrzędna x wyboru
     y = models.IntegerField()        # Współrzędna y wyboru
     width = models.IntegerField()    # Szerokość wyboru

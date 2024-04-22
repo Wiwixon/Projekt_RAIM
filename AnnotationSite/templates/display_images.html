@@ -1,5 +1,3 @@
-<!-- display_images.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,15 +6,18 @@
     <title>Display Images</title>
 </head>
 <body>
-    <h1>Zapisane obrazy:</h1>
-    {% for image in images %}
-        <div>
-            <h2>Obraz {{ image.id }}</h2>
-            <p>Data utworzenia: {{ image.created_at }}</p>
-            <img src="data:image/png;base64,{{ image.image_data }}" alt="Obraz">
-
-
-        </div>
-    {% endfor %}
+    <h1>Display Images</h1>
+    {% if selections %}
+        <ul>
+            {% for selection in selections %}
+                <li>
+                    <p>Selection at ({{ selection.x }}, {{ selection.y }}) with width {{ selection.width }} and height {{ selection.height }}</p>
+                    <img src="{{ selection.image.url }}" alt="Selected Image">
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No saved selections found.</p>
+    {% endif %}
 </body>
 </html>
