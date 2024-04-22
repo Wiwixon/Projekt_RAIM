@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multiple Selections with Undo</title>
+<style>
+    #canvas {
+        border: 1px solid black;
+    }
+</style>
+</head>
+<body>
+<input type="file" id="fileInput" accept="image/*"><br>
+<canvas id="canvas"></canvas>
+<button id="saveButton">Save Selections</button>
+<button id="undoButton">Undo</button>
+
+<script>
+    window.onload = function() {
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+        var image = new Image();
+        var selections = [];
+        var isDragging = false;
+        var startX, startY;
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+            selections.forEach(function(selection) {
+                ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+                ctx.fillRect(selection.x, selection.y, selection.width, selection.height);
+            });
+        }
+
+        image.onload = function() {
+            canvas.width = image.width;
+            canvas.height = image.height;
+            draw();
+        };
+
+        function handleMouseDown(e) {
+            isDragging = true;
+            startX = e.offsetX;
+            startY = e.offsetY;
+        }
+
+        function handleMouseUp(e) {
+            isDragging = false;
+            var endX = e.offsetX;
+            var endY = e.offsetY;
+            var width = endX - startX;
+            var height = endY - startY;
+
+            if (width !== 0 && height !== 0) {
+                selections.push({
+                    x: Math.min(startX, endX),
+                    y: Math.min(startY, endY),
+                    width: Math.abs(width),
+                    height: Math.abs(height)
+                });
+                draw();
+            }
+        }
+
+        function handleMouseMove(e) {
+            if (!isDragging) return;
+
+            var mouseX = e.offsetX;
+            var mouseY = e.offsetY;
+
+            draw();
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+            ctx.fillRect(startX, startY, mouseX - startX, mouseY - startY);
+        }
+
+        canvas.addEventListener('mousedown', handleMouseDown);
+        canvas.addEventListener('mouseup', handleMouseUp);
+        canvas.addEventListener('mousemove', handleMouseMove);
+
+        var fileInput = document.getElementById('fileInput');
+        fileInput.addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            var reader = new FileReader();
+            reader.onload = function(event) {
+                image.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        var saveButton = document.getElementById('saveButton');
+        saveButton.addEventListener('click', function() {
+            if (selections.length > 0) {
+                var tempCanvas = document.createElement('canvas');
+                var tempCtx = tempCanvas.getContext('2d');
+                
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+
+                tempCtx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+                selections.forEach(function(selection) {
+                    tempCtx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+                    tempCtx.fillRect(selection.x, selection.y, selection.width, selection.height);
+                });
+
+                var downloadLink = document.createElement('a');
+                downloadLink.href = tempCanvas.toDataURL();
+                downloadLink.download = 'image_with_selections.png';
+                downloadLink.click();
+            } else {
+                alert('No selections to save.');
+            }
+        });
+
+        var undoButton = document.getElementById('undoButton');
+        undoButton.addEventListener('click', function() {
+            if (selections.length > 0) {
+                selections.pop();
+                draw();
+            } else {
+                alert('No selections to undo.');
+            }
+        });
+    };
+</script>
+</body>
+</html>
